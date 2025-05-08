@@ -139,19 +139,17 @@
             desc.textContent = todo.description || 'Không có mô tả.';
 
             const deleteButton = document.createElement('button');
-deleteButton.textContent = 'Xóa';
-deleteButton.onclick = () => {
-  const isConfirmed = window.confirm("Bạn có muốn xóa công việc này không?");
-  if (isConfirmed) {
-    deleteTodo(todo.id);
-  }
-};
-
-
-            const updateButton = document.createElement('button');
+               deleteButton.textContent = 'Xóa';
+               deleteButton.onclick = () => {
+              const isConfirmed = window.confirm("Bạn có muốn xóa công việc này không?");
+               if (isConfirmed) {
+                deleteTodo(todo.id);
+                  }
+                     };
+             const updateButton = document.createElement('button');
             updateButton.textContent = 'Sửa';
             updateButton.onclick = () => {
-              // Chuyển đến trang sửa
+
               window.location.href = `edit_todo.html?id=${todo.id}`;
             };
 
