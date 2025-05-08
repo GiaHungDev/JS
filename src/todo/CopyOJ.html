@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Danh sách Todos</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    #todo-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    #todo-list li {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out;
+    }
+
+    #todo-list li:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      background-color: #f9f9f9;
+    }
+
+    #todo-list li .todo-id {
+      font-weight: bold;
+      color: #3498db;
+      margin-bottom: 8px;
+    }
+
+    #todo-list li .todo-title {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    #todo-list li .todo-description {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #add-todo-form input,
+    #add-todo-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    #add-todo-form button {
+      background-color: #2ecc71;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    #add-todo-form button:hover {
+      background-color: #27ae60;
+    }
+
+  </style>
+</head>
+<body>
+  <h2>Danh sách Todos</h2>
+  <ul id="todo-list"></ul>
+
+
+  <div>
+    <h3>Thêm công việc mới</h3>
+    <form id="add-todo-form">
+      <input type="text" id="todo-title" placeholder="Tiêu đề" required />
+      <textarea id="todo-description" placeholder="Mô tả" required></textarea>
+      <button type="submit">Thêm công việc</button>
+    </form>
+  </div>
+
+  <script>
+    const todoList = document.getElementById('todo-list');
+    const addTodoForm = document.getElementById('add-todo-form');
+    const todoTitleInput = document.getElementById('todo-title');
+    const todoDescriptionInput = document.getElementById('todo-description');
+
+    function loadTodos() {
+      fetch('http://localhost:3000/todos')
+        .then(response => response.json())
+        .then(data => {
+          todoList.innerHTML = ''; 
+          data.forEach(todo => {
+            const li = document.createElement('li');
+            const id = document.createElement('div');
+            id.className = 'todo-id';
+            id.textContent = `#${todo.id}`;
+
+            const title = document.createElement('div');
+            title.className = 'todo-title';
+            title.textContent = todo.title;
+
+            const desc = document.createElement('div');
+            desc.className = 'todo-description';
+            desc.textContent = todo.description || 'Không có mô tả.';
+
+            const deleteButton = document.createElement('button');
+deleteButton.textContent = 'Xóa';
+deleteButton.onclick = () => {
+  const isConfirmed = window.confirm("Bạn có muốn xóa công việc này không?");
+  if (isConfirmed) {
+    deleteTodo(todo.id);
+  }
+};
+
+
+            const updateButton = document.createElement('button');
+            updateButton.textContent = 'Sửa';
+            updateButton.onclick = () => {
+              // Chuyển đến trang sửa
+              window.location.href = `edit_todo.html?id=${todo.id}`;
+            };
+
+            li.appendChild(id);
+            li.appendChild(title);
+            li.appendChild(desc);
+            li.appendChild(updateButton);
+            li.appendChild(deleteButton);
+            todoList.appendChild(li);
+          });
+        })
+        .catch(error => console.error('Lỗi khi gọi API:', error));
+    }
+
+    addTodoForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = todoTitleInput.value;
+      const description = todoDescriptionInput.value;
+
+      fetch('http://localhost:3000/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description }),
+      })
+      .then(response => response.json())
+      .then(() => {
+        loadTodos(); 
+        todoTitleInput.value = '';
+        todoDescriptionInput.value = '';
+      })
+      .catch(error => console.error('Lỗi khi thêm công việc:', error));
+    });
+    function deleteTodo(id) {
+      fetch(`http://localhost:3000/todos/${id}`, {
+        method: 'DELETE',
+      })
+      .then(() => loadTodos()) 
+      .catch(error => console.error('Lỗi khi xóa công việc:', error));
+    }
+
+    loadTodos(); 
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sửa Công Việc</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    #edit-todo-form input,
+    #edit-todo-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    #edit-todo-form button {
+      background-color: #3498db;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    #edit-todo-form button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h2>Sửa Công Việc</h2>
+  <form id="edit-todo-form">
+    <input type="text" id="edit-todo-title" placeholder="Tiêu đề" required />
+    <textarea id="edit-todo-description" placeholder="Mô tả" required></textarea>
+    <button type="submit">Cập nhật công việc</button>
+  </form>
+
+  <script>
+    // Lấy ID công việc từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const todoId = urlParams.get('id');
+
+    // Nếu không có id trong URL thì thông báo lỗi
+    if (!todoId) {
+      alert('Không có ID công việc trong URL!');
+      window.location.href = 'CopyOJ.html'; // Quay lại trang danh sách Todo nếu không có ID
+    }
+
+    // Hàm lấy thông tin công việc từ API
+    function loadTodoData() {
+      fetch(`http://localhost:3000/todos/${todoId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data) {
+            // Hiển thị dữ liệu vào form
+            document.getElementById('edit-todo-title').value = data.title;
+            document.getElementById('edit-todo-description').value = data.description;
+          } else {
+            alert('Công việc không tồn tại!');
+            window.location.href = 'CopyOJ.html'; // Quay lại trang danh sách nếu không tìm thấy công việc
+          }
+        })
+        .catch(error => {
+          console.error('Lỗi khi tải thông tin công việc:', error);
+          alert('Có lỗi xảy ra khi tải dữ liệu!');
+        });
+    }
+
+    // Gọi hàm để load dữ liệu công việc
+    loadTodoData();
+
+    // Cập nhật công việc
+    const editTodoForm = document.getElementById('edit-todo-form');
+    editTodoForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const title = document.getElementById('edit-todo-title').value;
+      const description = document.getElementById('edit-todo-description').value;
+
+      fetch(`http://localhost:3000/todos/${todoId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, description })
+      })
+      .then(response => response.json())
+      .then(() => {
+        alert('Công việc đã được cập nhật!');
+        window.location.href = 'CopyOJ.html'; 
+      })
+      .catch(error => {
+        console.error('Lỗi khi cập nhật công việc:', error);
+        alert('Có lỗi xảy ra khi cập nhật công việc!');
+      });
+    });
+  </script>
+</body>
+</html>

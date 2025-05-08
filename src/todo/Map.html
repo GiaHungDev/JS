@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Danh sách Todos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    #todo-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    #todo-list li {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #todo-list li:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      background-color: #f9f9ff;
+    }
+
+    #todo-list li .todo-id {
+      font-weight: bold;
+      color: #3498db;
+      margin-bottom: 8px;
+    }
+
+    #todo-list li .todo-title {
+      color: #333;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    #todo-list li .todo-description {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <h2>Danh sách Todos</h2>
+  <ul id="todo-list"></ul>
+
+  <script>
+    fetch('http://localhost:3000/todos')
+  .then(response => response.json())
+  .then(data => {
+    const list = document.getElementById('todo-list');
+
+    // Dùng map để tạo ra danh sách <li>
+    const todoItems = data.map(todo => {
+      const todoCopy = { ...todo };
+
+      const li = document.createElement('li');
+
+      const id = document.createElement('div');
+      id.className = 'todo-id';
+      id.textContent = `#${todoCopy.id}`;
+
+      const title = document.createElement('div');
+      title.className = 'todo-title';
+      title.textContent = todoCopy.title;
+
+      const desc = document.createElement('div');
+      desc.className = 'todo-description';
+      desc.textContent = todoCopy.description || 'Không có mô tả.';
+
+      li.appendChild(id);
+      li.appendChild(title);
+      li.appendChild(desc);
+
+      return li; // Trả về <li>
+    });
+
+    // Duyệt mảng mới và thêm vào DOM
+    todoItems.forEach(li => list.appendChild(li));
+  })
+  .catch(error => {
+    console.error('Lỗi khi gọi API:', error);
+  });
+
+  </script>
+</body>
+</html>
